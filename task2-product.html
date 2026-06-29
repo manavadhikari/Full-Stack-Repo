@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task 2 - Product Detail</title>
+
+  <style>
+    /* ── Reset ── */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background-color: #2c3e50;
+      color: white;
+      padding: 15px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h1 {
+      font-size: 22px;
+    }
+
+    .navbar-links {
+      display: flex;
+      gap: 12px;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      background-color: #555;
+    }
+
+    .navbar a:hover {
+      background-color: #444;
+    }
+
+    .navbar a.cart-link {
+      background-color: #e67e22;
+    }
+
+    .navbar a.cart-link:hover {
+      background-color: #d35400;
+    }
+
+    /* ── Back Button ── */
+    .back-btn {
+      display: inline-block;
+      margin: 20px 24px 10px 24px;
+      padding: 8px 16px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .back-btn:hover {
+      background-color: #eee;
+    }
+
+    /* ── Product Detail Container ── */
+    .product-container {
+      max-width: 860px;
+      margin: 10px auto 40px auto;
+      padding: 0 24px;
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;           /* stacks on small screens */
+    }
+
+    /* ── Left: Product Image ── */
+    .product-image-box {
+      flex: 0 0 320px;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .product-image-box img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+    }
+
+    /* ── Right: Product Info ── */
+    .product-info {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .product-category {
+      font-size: 13px;
+      color: #888;
+      text-transform: capitalize;
+      margin-bottom: 6px;
+    }
+
+    .product-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+
+    .product-rating {
+      font-size: 14px;
+      color: #f39c12;
+      margin-bottom: 10px;
+    }
+
+    .product-price {
+      font-size: 28px;
+      font-weight: bold;
+      color: #e67e22;
+      margin-bottom: 12px;
+    }
+
+    .product-description {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .product-stock {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .in-stock {
+      color: #27ae60;
+      font-weight: bold;
+    }
+
+    .out-of-stock {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    /* ── Add to Cart Button ── */
+    .add-cart-btn {
+      width: 100%;
+      padding: 14px;
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .add-cart-btn:hover {
+      background-color: #1a252f;
+    }
+
+    .add-cart-btn.added {
+      background-color: #27ae60;
+    }
+
+    /* ── Loading ── */
+    #loading {
+      text-align: center;
+      padding: 60px;
+      font-size: 18px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <h1>🛍 ShopEasy</h1>
+    <div class="navbar-links">
+      <a href="task1-listing.html">← Products</a>
+      <a href="task3-cart.html" class="cart-link">🛒 Cart</a>
+    </div>
+  </div>
+
+  <!-- BACK BUTTON -->
+  <button class="back-btn" onclick="window.location.href='task1-listing.html'">
+    ← Back to Products
+  </button>
+
+  <!-- LOADING TEXT -->
+  <div id="loading">Loading product...</div>
+
+  <!-- PRODUCT DETAIL (filled by JavaScript) -->
+  <div class="product-container" id="product-container" style="display:none;"></div>
+
+
+  <script>
+    // Step 1: Read the product ID that was saved in task1
+    var productId = localStorage.getItem("selectedProductId");
+
+    // If no ID found, go back to listing
+    if (!productId) {
+      window.location.href = "task1-listing.html";
+    }
+
+    // Step 2: Fetch that specific product from the API
+    fetch("https://dummyjson.com/products/" + productId)
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(product) {
+
+        // Step 3: Hide loading text, show container
+        document.getElementById("loading").style.display = "none";
+        var container = document.getElementById("product-container");
+        container.style.display = "flex";
+
+        // Step 4: Check if in stock
+        var stockHTML = "";
+        if (product.stock > 0) {
+          stockHTML = `<span class="in-stock">✓ In Stock (${product.stock} available)</span>`;
+        } else {
+          stockHTML = `<span class="out-of-stock">✗ Out of Stock</span>`;
+        }
+
+        // Step 5: Build the product detail HTML
+        container.innerHTML = `
+          <!-- LEFT: Image -->
+          <div class="product-image-box">
+            <img src="${product.thumbnail}" alt="${product.title}" />
+          </div>
+
+          <!-- RIGHT: Info -->
+          <div class="product-info">
+            <div class="product-category">${product.category}</div>
+            <div class="product-title">${product.title}</div>
+            <div class="product-rating">★ ${product.rating} / 5</div>
+            <div class="product-price">$${product.price.toFixed(2)}</div>
+            <div class="product-description">${product.description}</div>
+            <div class="product-stock">${stockHTML}</div>
+            <button class="add-cart-btn" id="add-btn" onclick="addToCart()">
+              Add to Cart
+            </button>
+          </div>
+        `;
+
+        // Step 6: addToCart function
+        window.addToCart = function() {
+          // Read existing cart from localStorage (or empty array)
+          var cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+          // Check if product is already in cart
+          var existing = cart.find(function(item) {
+            return item.id === product.id;
+          });
+
+          if (existing) {
+            // Just increase quantity
+            existing.qty += 1;
+          } else {
+            // Add new item to cart
+            cart.push({
+              id:        product.id,
+              title:     product.title,
+              price:     product.price,
+              thumbnail: product.thumbnail,
+              qty:       1
+            });
+          }
+
+          // Save updated cart back to localStorage
+          localStorage.setItem("cart", JSON.stringify(cart));
+
+          // Show green confirmation on button
+          var btn = document.getElementById("add-btn");
+          btn.textContent = "✓ Added!";
+          btn.className = "add-cart-btn added";
+
+          // Reset button after 1.5 seconds
+          setTimeout(function() {
+            btn.textContent = "Add to Cart";
+            btn.className = "add-cart-btn";
+          }, 1500);
+        };
+
+      });
+  </script>
+
+</body>
+</html>
