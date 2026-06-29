@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task 1 - Product Listing</title>
+
+  <style>
+    /* ── Reset ── */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background-color: #2c3e50;
+      color: white;
+      padding: 15px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h1 {
+      font-size: 22px;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      background-color: #e67e22;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .navbar a:hover {
+      background-color: #d35400;
+    }
+
+    /* ── Page heading ── */
+    .page-heading {
+      text-align: center;
+      padding: 24px;
+      font-size: 20px;
+      color: #2c3e50;
+    }
+
+    /* ── Product Grid ── */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 0 24px 40px 24px;
+    }
+
+    /* ── Single Product Card ── */
+    .product-card {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+
+    .product-card:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: contain;
+      background-color: #fafafa;
+      padding: 10px;
+    }
+
+    .card-info {
+      padding: 12px;
+    }
+
+    .card-info .category {
+      font-size: 12px;
+      color: #888;
+      text-transform: capitalize;
+      margin-bottom: 4px;
+    }
+
+    .card-info .title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #222;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 6px;
+    }
+
+    .card-info .price {
+      font-size: 16px;
+      font-weight: bold;
+      color: #e67e22;
+    }
+
+    .card-info .rating {
+      font-size: 12px;
+      color: #f39c12;
+      margin-top: 4px;
+    }
+
+    /* ── Loading message ── */
+    #loading {
+      text-align: center;
+      padding: 60px;
+      font-size: 18px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <h1>🛍 CosmicOn</h1>
+    <a href="task3-cart.html">🛒 Cart</a>
+  </div>
+
+  <!-- PAGE HEADING -->
+  <div class="page-heading">All Products</div>
+
+  <!-- LOADING TEXT (shown while fetching) -->
+  <div id="loading">Loading products...</div>
+
+  <!-- PRODUCT GRID (filled by JavaScript) -->
+  <div class="product-grid" id="product-grid"></div>
+
+
+  <script>
+    // Step 1: Fetch all products from the API
+    fetch("https://dummyjson.com/products?limit=194")
+      .then(function(response) {
+        return response.json();         // convert response to JSON
+      })
+      .then(function(data) {
+        var products = data.products;   // array of all products
+
+        // Step 2: Hide the loading text
+        document.getElementById("loading").style.display = "none";
+
+        // Step 3: Get the grid container
+        var grid = document.getElementById("product-grid");
+
+        // Step 4: Loop through every product and create a card
+        products.forEach(function(product) {
+
+          // Create the card div
+          var card = document.createElement("div");
+          card.className = "product-card";
+
+          // Put HTML inside the card
+          card.innerHTML = `
+            <img src="${product.thumbnail}" alt="${product.title}" />
+            <div class="card-info">
+              <div class="category">${product.category}</div>
+              <div class="title">${product.title}</div>
+              <div class="price">$${product.price.toFixed(2)}</div>
+              <div class="rating">★ ${product.rating} / 5</div>
+            </div>
+          `;
+
+          // When the card is clicked → go to product detail page
+          card.onclick = function() {
+            // Save the product ID in localStorage so task2 can read it
+            localStorage.setItem("selectedProductId", product.id);
+            window.location.href = "task2-product.html";
+          };
+
+          // Add card to the grid
+          grid.appendChild(card);
+        });
+      });
+  </script>
+
+</body>
+</html>
